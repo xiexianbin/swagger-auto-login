@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock Swagger UI - Test Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #fafafa;
+      padding: 20px;
+    }
+
+    .swagger-ui {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .topbar {
+      background: #89bf04;
+      padding: 15px 20px;
+      margin: -20px -20px 20px;
+      border-radius: 8px 8px 0 0;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .authorize {
+      background: #4990e2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 20px 0;
+      transition: background 0.2s;
+    }
+
+    .authorize:hover {
+      background: #357abd;
+    }
+
+    .modal-ux {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-ux.show {
+      display: flex;
+    }
+
+    .modal-ux-content {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-ux h3 {
+      margin-bottom: 20px;
+      color: #3b4151;
+    }
+
+    .auth-container {
+      margin-bottom: 20px;
+    }
+
+    section {
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    section h4 {
+      color: #3b4151;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #3b4151;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #4990e2;
+    }
+
+    .btn-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn.authorize {
+      background: #4990e2;
+      color: white;
+    }
+
+    .btn.authorize:hover {
+      background: #357abd;
+    }
+
+    .btn.close {
+      background: linear-gradient(to right, #3b82f6, #2563eb);
+      color: white;
+      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn.close:hover {
+      background: linear-gradient(to right, #2563eb, #1d4ed8);
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 4px;
+      background: #f0f0f0;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .info-section {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .info-section h3 {
+      color: #004085;
+      margin-bottom: 10px;
+    }
+
+    .info-section p {
+      color: #004085;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .info-section code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="swagger-ui" class="swagger-ui">
+    <div class="topbar">
+      <span>Mock Swagger UI</span>
+    </div>
+
+    <div class="info-section">
+      <h3>🧪 Test Page for Swagger Auto Login Extension</h3>
+      <p>
+        This is a mock Swagger UI page for testing the extension.
+        Click the "Authorize" button below to open the authentication modal.
+        The extension should automatically fill in your configured credentials.
+      </p>
+      <p style="margin-top: 10px;">
+        <strong>Test URL:</strong> <code>http://localhost:*/test-swagger.html</code>
+      </p>
+    </div>
+
+    <button class="authorize" onclick="openAuthModal()">
+      <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;"
+        fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+          clip-rule="evenodd" />
+      </svg>
+      Authorize
+    </button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <div id="authModal" class="modal-ux">
+    <div class="modal-ux-content">
+      <h3>Available authorizations</h3>
+
+      <div class="auth-container">
+        <!-- Bearer Token -->
+        <section data-name="bearer">
+          <h4>Bearer (http, Bearer)</h4>
+          <div class="form-group">
+            <label for="bearer-token">Value:</label>
+            <input type="text" id="bearer-token" name="bearer" placeholder="Bearer token" />
+          </div>
+        </section>
+
+        <!-- Basic Auth -->
+        <section data-name="basic">
+          <h4>Basic Auth (http, Basic)</h4>
+          <div class="form-group">
+            <label for="basic-username">Username:</label>
+            <input type="text" id="basic-username" name="username" placeholder="Username" />
+          </div>
+          <div class="form-group">
+            <label for="basic-password">Password:</label>
+            <input type="password" id="basic-password" name="password" placeholder="Password" />
+          </div>
+        </section>
+
+        <!-- API Key -->
+        <section data-name="api_key">
+          <h4>API Key (apiKey)</h4>
+          <div class="form-group">
+            <label for="api-key">X-API-Key:</label>
+            <input type="text" id="api-key" name="X-API-Key" placeholder="API key" />
+          </div>
+        </section>
+      </div>
+
+      <div class="btn-wrapper">
+        <button class="btn authorize" onclick="authorize()">Authorize</button>
+        <button class="btn close" onclick="closeAuthModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openAuthModal() {
+      document.getElementById('authModal').classList.add('show');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.remove('show');
+    }
+
+    function authorize() {
+      const bearer = document.getElementById('bearer-token').value;
+      const username = document.getElementById('basic-username').value;
+      const password = document.getElementById('basic-password').value;
+      const apiKey = document.getElementById('api-key').value;
+
+      let message = '<strong>✅ Authorization Successful!</strong><br><br>';
+
+      if (bearer) {
+        message += `<strong>Bearer Token:</strong> ${bearer.substring(0, 20)}...<br>`;
+      }
+      if (username && password) {
+        message += `<strong>Basic Auth:</strong> ${username} / ${'*'.repeat(password.length)}<br>`;
+      }
+      if (apiKey) {
+        message += `<strong>API Key:</strong> ${apiKey.substring(0, 20)}...<br>`;
+      }
+
+      const status = document.getElementById('status');
+      status.innerHTML = message;
+      status.className = 'status success show';
+
+      closeAuthModal();
+
+      console.log('Authorization details:', {
+        bearer,
+        username,
+        password: password ? '***' : '',
+        apiKey
+      });
+    }
+
+    // Log when page loads
+    console.log('Mock Swagger UI loaded - ready for extension testing');
+    console.log('URL:', window.location.href);
+  </script>
+</body>
+
+</html>
