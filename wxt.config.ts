@@ -9,7 +9,7 @@ export default defineConfig({
     name: 'Swagger Auto Login',
     description: 'Automatically inject authentication credentials into Swagger UI',
     version: '1.0.0',
-    permissions: ['storage'],
+    permissions: ['storage', 'tabs'],
     host_permissions: ['<all_urls>'],
   },
 });

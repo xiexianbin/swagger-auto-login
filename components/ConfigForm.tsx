@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { AuthConfig, AuthMethod } from '@/utils/storage';
+import type { AuthConfig, AuthMethod } from '@/utils/app-storage';
 
 interface ConfigFormProps {
   config: AuthConfig | null;

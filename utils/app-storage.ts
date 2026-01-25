@@ -32,7 +32,7 @@ export interface StorageData {
 
 const STORAGE_KEY = 'swagger-auth-configs';
 
-export const storage = {
+export const authStorage = {
   async getConfigs(): Promise<AuthConfig[]> {
     const result = await chrome.storage.local.get(STORAGE_KEY);
     return result[STORAGE_KEY] || [];

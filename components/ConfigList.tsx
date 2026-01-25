@@ -1,4 +1,4 @@
-import type { AuthConfig } from '@/utils/storage';
+import type { AuthConfig } from '@/utils/app-storage';
 
 interface ConfigListProps {
   configs: AuthConfig[];

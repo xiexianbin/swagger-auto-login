@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@/assets/main.css';
-import { storage, type AuthConfig } from '@/utils/storage';
+import { authStorage as storage, type AuthConfig } from '@/utils/app-storage';
 import ConfigList from '@/components/ConfigList';
 import ConfigForm from '@/components/ConfigForm';
 
@@ -17,6 +17,25 @@ function App() {
   const loadConfigs = async () => {
     const loaded = await storage.getConfigs();
     setConfigs(loaded);
+
+    // Check current tab for matching config
+    try {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tabs.length > 0 && tabs[0].url) {
+        const currentUrl = tabs[0].url;
+        // Find matching config directly using storage logic or find in loaded list
+        // Since we have loaded list, we can check it here or use storage.getMatchingConfig
+        // Let's reuse the logic from storage utility
+        const match = await storage.getMatchingConfig(currentUrl);
+
+        if (match) {
+          setEditingConfig(match);
+          setView('edit');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to check current tab:', err);
+    }
   };
 
   const handleAdd = () => {
@@ -102,9 +121,7 @@ function App() {
   );
 }
 
-export default defineUnlistedScript(() => {
-  const root = document.getElementById('root');
-  if (root) {
-    createRoot(root).render(<App />);
-  }
-});
+const root = document.getElementById('root');
+if (root) {
+  createRoot(root).render(<App />);
+}
