@@ -2,16 +2,7 @@ import { createRoot } from 'react-dom/client';
 import '@/assets/main.css';
 import App from '@/components/App';
 
-function PopupWrapper() {
-  return (
-    <div className="w-[480px] h-[600px]">
-      <App />
-    </div>
-  );
-}
-
 const root = document.getElementById('root');
 if (root) {
-  createRoot(root).render(<PopupWrapper />);
+  createRoot(root).render(<App />);
 }
-
