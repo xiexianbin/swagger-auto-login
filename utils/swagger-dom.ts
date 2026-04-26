@@ -38,7 +38,6 @@ export const swaggerDom = {
       'button[class*="authorize"]',
       'button[class*="auth-btn"]',
       '.btn.authorize',
-      'button:has-text("Authorize")',
     ];
 
     for (const selector of selectors) {
@@ -130,12 +129,28 @@ export const swaggerDom = {
   },
 
   async fillBearerAuth(method: AuthMethod): Promise<boolean> {
-    const tokenInput = document.querySelector<HTMLInputElement>(
-      'input[name="bearer"], input[placeholder*="bearer" i], input[placeholder*="token" i], section[data-name*="bearer" i] input[type="text"]'
-    );
+    const containers = document.querySelectorAll<HTMLDivElement>('div.auth-container');
+    let tokenInput: HTMLInputElement | null = null;
+
+    for (const container of containers) {
+      const header = container.querySelector('h4');
+      if (header && /bearer/i.test(header.textContent || '')) {
+        tokenInput = container.querySelector<HTMLInputElement>(
+          'input[type="text"], input[type="password"], input:not([type])'
+        );
+        if (tokenInput) break;
+      }
+    }
 
     if (tokenInput && method.token) {
-      tokenInput.value = method.token;
+      const nativeSetter = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype, 'value'
+      )?.set;
+      if (nativeSetter) {
+        nativeSetter.call(tokenInput, method.token);
+      } else {
+        tokenInput.value = method.token;
+      }
       tokenInput.dispatchEvent(new Event('input', { bubbles: true }));
       tokenInput.dispatchEvent(new Event('change', { bubbles: true }));
       console.log('[Swagger Auto Login] Filled Bearer Token');
@@ -145,56 +160,144 @@ export const swaggerDom = {
   },
 
   async fillApiKeyAuth(method: AuthMethod): Promise<boolean> {
+    // New-style: iterate div.auth-container and match by Name: field
+    const containers = document.querySelectorAll<HTMLDivElement>('div.auth-container');
+    for (const container of containers) {
+      const nameValue = this.extractWrapperField(container, 'Name');
+      if (nameValue !== method.apiKeyName) continue;
+
+      const inValue = this.extractWrapperField(container, 'In');
+      if (method.apiKeyIn && inValue && inValue !== method.apiKeyIn) continue;
+
+      const input = container.querySelector<HTMLInputElement>('section input[type="text"], input[type="text"]');
+      if (input && method.apiKeyValue) {
+        input.value = method.apiKeyValue;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log(`[Swagger Auto Login] Filled API Key "${nameValue}" (${inValue || 'unknown location'})`);
+
+        // Click Authorize button within this container
+        const authorizeBtn = container.querySelector<HTMLButtonElement>(
+          'button[type="submit"], .auth-btn-wrapper button.authorize'
+        );
+        if (authorizeBtn && !authorizeBtn.disabled) {
+          authorizeBtn.click();
+          console.log(`[Swagger Auto Login] Clicked Authorize for "${nameValue}"`);
+        }
+        return true;
+      }
+    }
+
+    // Old-style fallback: section-based h4 text matching
+    const sections = document.querySelectorAll<HTMLDivElement>(
+      'section.auth-container, .auth-container section, section'
+    );
+    for (const section of sections) {
+      const header = section.querySelector('h4');
+      if (!header) continue;
+      const headerText = header.textContent?.toLowerCase() || '';
+      const location = method.apiKeyIn || 'header';
+      if (!headerText.includes('api')) continue;
+      if (!headerText.includes(location)) continue;
+
+      const input = section.querySelector<HTMLInputElement>(
+        `input[name="${method.apiKeyName}"], input[type="text"]`
+      );
+      if (input && method.apiKeyValue) {
+        input.value = method.apiKeyValue;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log(`[Swagger Auto Login] Filled API Key (${location})`);
+        return true;
+      }
+    }
+
+    // Last fallback: global selector
     const apiKeyInput = document.querySelector<HTMLInputElement>(
       `input[name="${method.apiKeyName}"], input[placeholder*="api" i], section[data-name*="api" i] input[type="text"], input#api_key_value`
     );
-
     if (apiKeyInput && method.apiKeyValue) {
       apiKeyInput.value = method.apiKeyValue;
       apiKeyInput.dispatchEvent(new Event('input', { bubbles: true }));
       apiKeyInput.dispatchEvent(new Event('change', { bubbles: true }));
-      console.log('[Swagger Auto Login] Filled API Key');
+      console.log('[Swagger Auto Login] Filled API Key (fallback)');
       return true;
     }
     return false;
   },
 
+  extractWrapperField(container: HTMLElement, fieldName: 'Name' | 'In'): string | null {
+    const wrappers = container.querySelectorAll<HTMLDivElement>('.wrapper');
+    for (const wrapper of wrappers) {
+      const p = wrapper.querySelector('p');
+      if (!p) continue;
+      const text = p.textContent || '';
+      if (text.startsWith(`${fieldName}:`) || text.startsWith(`${fieldName} :`)) {
+        const code = p.querySelector('code');
+        return code?.textContent?.trim() || null;
+      }
+    }
+    return null;
+  },
+
   async fillOAuth2(method: AuthMethod): Promise<boolean> {
-    // OAuth2 is more complex - for now just fill client ID if available
+    let anyFilled = false;
+
+    // Fill client_id
     const clientIdInput = document.querySelector<HTMLInputElement>(
       'input[name="client_id"], input[placeholder*="client" i]'
     );
-
     if (clientIdInput && method.clientId) {
       clientIdInput.value = method.clientId;
       clientIdInput.dispatchEvent(new Event('input', { bubbles: true }));
       clientIdInput.dispatchEvent(new Event('change', { bubbles: true }));
       console.log('[Swagger Auto Login] Filled OAuth2 Client ID');
-      return true;
+      anyFilled = true;
     }
-    return false;
+
+    // Fill client_secret
+    const clientSecretInput = document.querySelector<HTMLInputElement>(
+      'input[name="client_secret"], input[placeholder*="client secret" i], input[type="password"][name*="secret" i]'
+    );
+    if (clientSecretInput && method.clientSecret) {
+      clientSecretInput.value = method.clientSecret;
+      clientSecretInput.dispatchEvent(new Event('input', { bubbles: true }));
+      clientSecretInput.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('[Swagger Auto Login] Filled OAuth2 Client Secret');
+      anyFilled = true;
+    }
+
+    if (!anyFilled) {
+      console.log('[Swagger Auto Login] No OAuth2 fields filled');
+    }
+    return anyFilled;
   },
 
   async clickModalAuthorizeButton(): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300));
 
+    // Click ALL authorize/submit buttons across all auth-containers
     const selectors = [
-      '.modal-ux button.authorize',
       '.auth-container button[type="submit"]',
-      '.auth-btn-wrapper button',
+      '.auth-btn-wrapper button.authorize',
+      '.modal-ux button.authorize',
       'button.btn.modal-btn.auth.authorize',
     ];
 
     for (const selector of selectors) {
-      const button = document.querySelector<HTMLButtonElement>(selector);
-      if (button && !button.disabled) {
-        button.click();
-        console.log('[Swagger Auto Login] Clicked modal authorize button');
+      const buttons = document.querySelectorAll<HTMLButtonElement>(selector);
+      if (buttons.length > 0) {
+        for (const button of buttons) {
+          if (!button.disabled) {
+            button.click();
+            console.log('[Swagger Auto Login] Clicked authorize button');
+          }
+        }
         return;
       }
     }
 
-    // Fallback: find button in modal by text
+    // Fallback: find buttons in modal by text
     const modal = document.querySelector('.modal-ux, [class*="modal"]');
     if (modal) {
       const buttons = modal.querySelectorAll('button');
@@ -205,7 +308,6 @@ export const swaggerDom = {
         ) {
           button.click();
           console.log('[Swagger Auto Login] Clicked modal authorize button (text match)');
-          return;
         }
       }
     }
@@ -218,7 +320,7 @@ export const swaggerDom = {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const closeButton = document.querySelector<HTMLButtonElement>(
-      '.modal-ux button.close, button[class*="close"]'
+      '.modal-ux button.close-modal, .modal-ux button.close, button[class*="close"]'
     );
     if (closeButton) {
       closeButton.click();

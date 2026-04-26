@@ -54,12 +54,16 @@ export default function ConfigForm({ config, onSave, onCancel }: ConfigFormProps
     onSave(newConfig);
   };
 
+  const inputCls = "w-full px-3 py-1.5 bg-white border border-[#dadce0] rounded-md text-[#202124] text-[13px] placeholder-[#80868b] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors";
+  const labelCls = "block text-[12px] font-medium text-[#5f6368] mb-1";
+  const selectCls = "w-full px-3 py-1.5 bg-white border border-[#dadce0] rounded-md text-[#202124] text-[13px] focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-colors";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Basic Info */}
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className={labelCls}>
             Configuration Name
           </label>
           <input
@@ -68,12 +72,12 @@ export default function ConfigForm({ config, onSave, onCancel }: ConfigFormProps
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Production API"
             required
-            className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className={inputCls}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
+          <label className={labelCls}>
             URL Pattern
           </label>
           <input
@@ -82,9 +86,9 @@ export default function ConfigForm({ config, onSave, onCancel }: ConfigFormProps
             onChange={(e) => setUrlPattern(e.target.value)}
             placeholder="e.g., https://api.example.com/*"
             required
-            className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono text-sm"
+            className={`${inputCls} font-mono text-[12px]`}
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-[11px] text-[#80868b]">
             Use * as wildcard. Example: https://api.example.com/*
           </p>
         </div>
@@ -92,30 +96,33 @@ export default function ConfigForm({ config, onSave, onCancel }: ConfigFormProps
 
       {/* Auth Methods */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <label className="block text-sm font-medium text-slate-300">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[12px] font-medium text-[#5f6368]">
             Authentication Methods
           </label>
           <button
             type="button"
             onClick={handleAddAuthMethod}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg transition-colors font-medium"
+            className="px-2.5 py-1 text-[12px] text-[#1a73e8] hover:bg-[#e8f0fe] rounded transition-colors font-medium"
           >
             + Add Method
           </button>
         </div>
 
         {authMethods.length === 0 ? (
-          <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-6 text-center">
-            <p className="text-sm text-slate-500">No authentication methods added yet</p>
+          <div className="border border-dashed border-[#dadce0] rounded-md p-6 text-center">
+            <p className="text-[12px] text-[#80868b]">No authentication methods added yet</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {authMethods.map((method, index) => (
               <AuthMethodEditor
                 key={method.id}
                 method={method}
                 index={index}
+                inputCls={inputCls}
+                labelCls={labelCls}
+                selectCls={selectCls}
                 onUpdate={(updates) => handleUpdateAuthMethod(method.id, updates)}
                 onRemove={() => handleRemoveAuthMethod(method.id)}
               />
@@ -125,17 +132,17 @@ export default function ConfigForm({ config, onSave, onCancel }: ConfigFormProps
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 pt-2">
+      <div className="flex gap-2 pt-1">
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all font-medium shadow-lg shadow-blue-500/20"
+          className="flex-1 px-3 py-1.5 border border-[#dadce0] text-[#202124] text-[13px] rounded-md hover:bg-[#f8f9fa] transition-colors font-medium"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all font-medium shadow-lg shadow-blue-500/20"
+          className="flex-1 px-3 py-1.5 bg-[#1a73e8] hover:bg-[#1765cc] text-white text-[13px] rounded-md transition-colors font-medium"
         >
           Save Config
         </button>
@@ -147,34 +154,37 @@ export default function ConfigForm({ config, onSave, onCancel }: ConfigFormProps
 interface AuthMethodEditorProps {
   method: AuthMethod;
   index: number;
+  inputCls: string;
+  labelCls: string;
+  selectCls: string;
   onUpdate: (updates: Partial<AuthMethod>) => void;
   onRemove: () => void;
 }
 
-function AuthMethodEditor({ method, index, onUpdate, onRemove }: AuthMethodEditorProps) {
+function AuthMethodEditor({ method, index, inputCls, labelCls, selectCls, onUpdate, onRemove }: AuthMethodEditorProps) {
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-slate-400">Method #{index + 1}</span>
+    <div className="border border-[#dadce0] rounded-md">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[#dadce0] bg-[#f8f9fa]">
+        <span className="text-[12px] font-medium text-[#5f6368]">Method #{index + 1}</span>
         <button
           type="button"
           onClick={onRemove}
-          className="text-red-400 hover:text-red-300 text-sm transition-colors"
+          className="text-[12px] text-[#d93025] hover:text-[#c5221f] transition-colors"
         >
           Remove
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="p-3 space-y-2.5">
         {/* Auth Type */}
         <div>
-          <label className="block text-xs font-medium text-slate-400 mb-1.5">
+          <label className={labelCls}>
             Type
           </label>
           <select
             value={method.authType}
             onChange={(e) => onUpdate({ authType: e.target.value as AuthMethod['authType'] })}
-            className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={selectCls}
           >
             <option value="bearer">Bearer Token</option>
             <option value="basic">Basic Auth</option>
@@ -187,27 +197,23 @@ function AuthMethodEditor({ method, index, onUpdate, onRemove }: AuthMethodEdito
         {method.authType === 'basic' && (
           <>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Username
-              </label>
+              <label className={labelCls}>Username</label>
               <input
                 type="text"
                 value={method.username || ''}
                 onChange={(e) => onUpdate({ username: e.target.value })}
                 placeholder="Enter username"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Password
-              </label>
+              <label className={labelCls}>Password</label>
               <input
                 type="password"
                 value={method.password || ''}
                 onChange={(e) => onUpdate({ password: e.target.value })}
                 placeholder="Enter password"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               />
             </div>
           </>
@@ -215,15 +221,13 @@ function AuthMethodEditor({ method, index, onUpdate, onRemove }: AuthMethodEdito
 
         {method.authType === 'bearer' && (
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5">
-              Token
-            </label>
+            <label className={labelCls}>Token</label>
             <textarea
               value={method.token || ''}
               onChange={(e) => onUpdate({ token: e.target.value })}
               placeholder="Enter bearer token"
               rows={3}
-              className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono resize-none"
+              className={`${inputCls} font-mono text-[12px] resize-none`}
             />
           </div>
         )}
@@ -231,37 +235,31 @@ function AuthMethodEditor({ method, index, onUpdate, onRemove }: AuthMethodEdito
         {method.authType === 'apiKey' && (
           <>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Key Name
-              </label>
+              <label className={labelCls}>Key Name</label>
               <input
                 type="text"
                 value={method.apiKeyName || ''}
                 onChange={(e) => onUpdate({ apiKeyName: e.target.value })}
                 placeholder="e.g., X-API-Key"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                className={`${inputCls} font-mono`}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Key Value
-              </label>
+              <label className={labelCls}>Key Value</label>
               <input
                 type="text"
                 value={method.apiKeyValue || ''}
                 onChange={(e) => onUpdate({ apiKeyValue: e.target.value })}
                 placeholder="Enter API key"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                className={`${inputCls} font-mono`}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Location
-              </label>
+              <label className={labelCls}>Location</label>
               <select
                 value={method.apiKeyIn || 'header'}
                 onChange={(e) => onUpdate({ apiKeyIn: e.target.value as 'header' | 'query' })}
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={selectCls}
               >
                 <option value="header">Header</option>
                 <option value="query">Query Parameter</option>
@@ -273,28 +271,57 @@ function AuthMethodEditor({ method, index, onUpdate, onRemove }: AuthMethodEdito
         {method.authType === 'oauth2' && (
           <>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Client ID
-              </label>
+              <label className={labelCls}>Client ID</label>
               <input
                 type="text"
                 value={method.clientId || ''}
                 onChange={(e) => onUpdate({ clientId: e.target.value })}
                 placeholder="Enter client ID"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                className={`${inputCls} font-mono`}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                Client Secret
-              </label>
+              <label className={labelCls}>Client Secret</label>
               <input
                 type="password"
                 value={method.clientSecret || ''}
                 onChange={(e) => onUpdate({ clientSecret: e.target.value })}
                 placeholder="Enter client secret"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                className={`${inputCls} font-mono`}
               />
+            </div>
+            <div>
+              <label className={labelCls}>Authorization URL</label>
+              <input
+                type="text"
+                value={method.authUrl || ''}
+                onChange={(e) => onUpdate({ authUrl: e.target.value })}
+                placeholder="e.g., https://auth.example.com/authorize"
+                className={`${inputCls} font-mono`}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Token URL</label>
+              <input
+                type="text"
+                value={method.tokenUrl || ''}
+                onChange={(e) => onUpdate({ tokenUrl: e.target.value })}
+                placeholder="e.g., https://auth.example.com/token"
+                className={`${inputCls} font-mono`}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Scopes</label>
+              <input
+                type="text"
+                value={method.scopes?.join(', ') || ''}
+                onChange={(e) => onUpdate({ scopes: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                placeholder="e.g., read, write, admin"
+                className={`${inputCls} font-mono`}
+              />
+              <p className="mt-1 text-[11px] text-[#80868b]">
+                Comma-separated scope names
+              </p>
             </div>
           </>
         )}

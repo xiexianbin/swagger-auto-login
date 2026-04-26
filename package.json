@@ -1,6 +1,6 @@
 {
   "name": "swagger-auto-login",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Chrome extension to auto-inject Swagger UI authentication",
   "type": "module",
   "scripts": {

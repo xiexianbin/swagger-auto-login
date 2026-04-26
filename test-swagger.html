@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mock Swagger UI - Test Page</title>
+  <title>Mock Swagger UI v5 - Test Page</title>
   <style>
     * {
       margin: 0;
@@ -37,7 +37,39 @@
       font-weight: bold;
     }
 
-    .authorize {
+    .info {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .info h3 {
+      color: #004085;
+      margin-bottom: 10px;
+    }
+
+    .info p {
+      color: #004085;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .info code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Auth wrapper — Swagger UI v5 style */
+    .auth-wrapper {
+      display: flex;
+      padding: 10px 0;
+    }
+
+    .auth-wrapper .authorize.unlocked {
       background: #4990e2;
       color: white;
       border: none;
@@ -46,14 +78,17 @@
       cursor: pointer;
       font-size: 14px;
       font-weight: 600;
-      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
       transition: background 0.2s;
     }
 
-    .authorize:hover {
+    .auth-wrapper .authorize.unlocked:hover {
       background: #357abd;
     }
 
+    /* Modal — Swagger UI v5 style */
     .modal-ux {
       display: none;
       position: fixed;
@@ -71,52 +106,109 @@
       display: flex;
     }
 
-    .modal-ux-content {
+    .modal-dialog-ux {
       background: white;
       border-radius: 8px;
-      padding: 30px;
       max-width: 600px;
       width: 90%;
       max-height: 80vh;
-      overflow-y: auto;
+      overflow: hidden;
     }
 
-    .modal-ux h3 {
-      margin-bottom: 20px;
+    .modal-ux-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .modal-ux-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .modal-ux-header h3 {
+      margin: 0;
       color: #3b4151;
+      font-size: 16px;
     }
 
+    .modal-ux-header .close-modal {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: #666;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-ux-header .close-modal:hover {
+      color: #333;
+    }
+
+    .modal-ux-content {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(80vh - 70px);
+    }
+
+    /* Auth container — per-scheme block */
     .auth-container {
-      margin-bottom: 20px;
-    }
-
-    section {
       border: 1px solid #e0e0e0;
       border-radius: 4px;
       padding: 15px;
       margin-bottom: 15px;
     }
 
-    section h4 {
+    .auth-container h4 {
       color: #3b4151;
       margin-bottom: 10px;
       font-size: 14px;
     }
 
-    .form-group {
-      margin-bottom: 12px;
+    .auth-container h4 code {
+      background: #f0f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
     }
 
-    label {
-      display: block;
-      margin-bottom: 5px;
+    .wrapper {
+      margin-bottom: 8px;
+    }
+
+    .wrapper p {
+      color: #3b4151;
+      font-size: 13px;
+      margin: 4px 0;
+    }
+
+    .wrapper p code {
+      background: #f0f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .wrapper label {
+      display: inline-block;
       color: #3b4151;
       font-size: 12px;
       font-weight: 600;
+      margin-right: 5px;
     }
 
-    input[type="text"],
-    input[type="password"] {
+    .wrapper section {
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .wrapper section input[type="text"],
+    .wrapper section input[type="password"] {
       width: 100%;
       padding: 8px 12px;
       border: 1px solid #d9d9d9;
@@ -124,49 +216,54 @@
       font-size: 14px;
     }
 
-    input[type="text"]:focus,
-    input[type="password"]:focus {
+    .wrapper section input[type="text"]:focus,
+    .wrapper section input[type="password"]:focus {
       outline: none;
       border-color: #4990e2;
     }
 
-    .btn-wrapper {
+    .auth-btn-wrapper {
       display: flex;
       gap: 10px;
-      margin-top: 20px;
-      padding-top: 20px;
+      margin-top: 15px;
+      padding-top: 15px;
       border-top: 1px solid #e0e0e0;
     }
 
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .btn.authorize {
+    .btn.modal-btn.auth.authorize.button {
       background: #4990e2;
       color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.2s;
     }
 
-    .btn.authorize:hover {
+    .btn.modal-btn.auth.authorize.button:hover {
       background: #357abd;
     }
 
-    .btn.close {
+    .btn.modal-btn.auth.btn-done.button {
       background: linear-gradient(to right, #3b82f6, #2563eb);
       color: white;
-      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+      transition: background 0.2s;
     }
 
-    .btn.close:hover {
+    .btn.modal-btn.auth.btn-done.button:hover {
       background: linear-gradient(to right, #2563eb, #1d4ed8);
     }
 
+    /* Status display */
     .status {
       margin-top: 20px;
       padding: 15px;
@@ -184,45 +281,19 @@
       color: #155724;
       border: 1px solid #c3e6cb;
     }
-
-    .info-section {
-      background: #e7f3ff;
-      border: 1px solid #b3d9ff;
-      border-radius: 4px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .info-section h3 {
-      color: #004085;
-      margin-bottom: 10px;
-    }
-
-    .info-section p {
-      color: #004085;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .info-section code {
-      background: white;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Courier New', monospace;
-    }
   </style>
 </head>
 
 <body>
   <div id="swagger-ui" class="swagger-ui">
     <div class="topbar">
-      <span>Mock Swagger UI</span>
+      <span>Mock Swagger UI v5</span>
     </div>
 
-    <div class="info-section">
-      <h3>🧪 Test Page for Swagger Auto Login Extension</h3>
+    <div class="info">
+      <h3>Test Page for Swagger Auto Login Extension</h3>
       <p>
-        This is a mock Swagger UI page for testing the extension.
+        This is a mock Swagger UI v5 page for testing the extension.
         Click the "Authorize" button below to open the authentication modal.
         The extension should automatically fill in your configured credentials.
       </p>
@@ -231,59 +302,101 @@
       </p>
     </div>
 
-    <button class="authorize" onclick="openAuthModal()">
-      <svg style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 5px;"
-        fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd"
-          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-          clip-rule="evenodd" />
-      </svg>
-      Authorize
-    </button>
+    <!-- Swagger UI v5 authorize button -->
+    <div class="auth-wrapper">
+      <button class="authorize unlocked" onclick="openAuthModal()">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+            clip-rule="evenodd" />
+        </svg>
+        Authorize
+      </button>
+    </div>
 
     <div id="status" class="status"></div>
   </div>
 
+  <!-- Modal — Swagger UI v5 structure -->
   <div id="authModal" class="modal-ux">
-    <div class="modal-ux-content">
-      <h3>Available authorizations</h3>
+    <div class="modal-dialog-ux">
+      <div class="modal-ux-inner">
+        <div class="modal-ux-header">
+          <h3>Available authorizations</h3>
+          <button type="button" class="close-modal" onclick="closeAuthModal()">✕</button>
+        </div>
+        <div class="modal-ux-content">
 
-      <div class="auth-container">
-        <!-- Bearer Token -->
-        <section data-name="bearer">
-          <h4>Bearer (http, Bearer)</h4>
-          <div class="form-group">
-            <label for="bearer-token">Value:</label>
-            <input type="text" id="bearer-token" name="bearer" placeholder="Bearer token" />
+          <!-- Bearer Auth -->
+          <div class="auth-container">
+            <h4><code>BearerAuth</code>&nbsp;(http, Bearer)</h4>
+            <div class="wrapper"><label>Value:</label><section class=""><input type="text" id="bearer-token"></section></div>
+            <div class="auth-btn-wrapper">
+              <button class="btn modal-btn auth authorize button" type="submit" onclick="authorizeScheme('BearerAuth', event)">Authorize</button>
+              <button class="btn modal-btn auth btn-done button" type="button" onclick="closeAuthModal()">Close</button>
+            </div>
           </div>
-        </section>
 
-        <!-- Basic Auth -->
-        <section data-name="basic">
-          <h4>Basic Auth (http, Basic)</h4>
-          <div class="form-group">
-            <label for="basic-username">Username:</label>
-            <input type="text" id="basic-username" name="username" placeholder="Username" />
+          <!-- Basic Auth -->
+          <div class="auth-container">
+            <h4><code>BasicAuth</code>&nbsp;(http, Basic)</h4>
+            <div class="wrapper"><label>Username:</label><section class=""><input type="text" id="basic-username" name="username"></section></div>
+            <div class="wrapper"><label>Password:</label><section class=""><input type="password" id="basic-password" name="password"></section></div>
+            <div class="auth-btn-wrapper">
+              <button class="btn modal-btn auth authorize button" type="submit" onclick="authorizeScheme('BasicAuth', event)">Authorize</button>
+              <button class="btn modal-btn auth btn-done button" type="button" onclick="closeAuthModal()">Close</button>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="basic-password">Password:</label>
-            <input type="password" id="basic-password" name="password" placeholder="Password" />
-          </div>
-        </section>
 
-        <!-- API Key -->
-        <section data-name="api_key">
-          <h4>API Key (apiKey)</h4>
-          <div class="form-group">
-            <label for="api-key">X-API-Key:</label>
-            <input type="text" id="api-key" name="X-API-Key" placeholder="API key" />
+          <!-- API Key: Authorization header -->
+          <div class="auth-container">
+            <h4><code>ApiKeyAuth</code>&nbsp;(apiKey)</h4>
+            <div class="wrapper"><p>Name: <code>Authorization</code></p></div>
+            <div class="wrapper"><p>In: <code>header</code></p></div>
+            <div class="wrapper"><label>Value:</label><section class=""><input type="text" id="api-key-auth"></section></div>
+            <div class="auth-btn-wrapper">
+              <button class="btn modal-btn auth authorize button" type="submit" onclick="authorizeScheme('ApiKeyAuth', event)">Authorize</button>
+              <button class="btn modal-btn auth btn-done button" type="button" onclick="closeAuthModal()">Close</button>
+            </div>
           </div>
-        </section>
-      </div>
 
-      <div class="btn-wrapper">
-        <button class="btn authorize" onclick="authorize()">Authorize</button>
-        <button class="btn close" onclick="closeAuthModal()">Close</button>
+          <!-- API Key: X-APP-KEY header -->
+          <div class="auth-container">
+            <h4><code>AppKeyAuth</code>&nbsp;(apiKey)</h4>
+            <div class="wrapper"><p>Name: <code>X-APP-KEY</code></p></div>
+            <div class="wrapper"><p>In: <code>header</code></p></div>
+            <div class="wrapper"><label>Value:</label><section class=""><input type="text" id="app-key"></section></div>
+            <div class="auth-btn-wrapper">
+              <button class="btn modal-btn auth authorize button" type="submit" onclick="authorizeScheme('AppKeyAuth', event)">Authorize</button>
+              <button class="btn modal-btn auth btn-done button" type="button" onclick="closeAuthModal()">Close</button>
+            </div>
+          </div>
+
+          <!-- API Key: access_token query -->
+          <div class="auth-container">
+            <h4><code>AccessTokenAuth</code>&nbsp;(apiKey)</h4>
+            <div class="wrapper"><p>Name: <code>access_token</code></p></div>
+            <div class="wrapper"><p>In: <code>query</code></p></div>
+            <div class="wrapper"><label>Value:</label><section class=""><input type="text" id="access-token"></section></div>
+            <div class="auth-btn-wrapper">
+              <button class="btn modal-btn auth authorize button" type="submit" onclick="authorizeScheme('AccessTokenAuth', event)">Authorize</button>
+              <button class="btn modal-btn auth btn-done button" type="button" onclick="closeAuthModal()">Close</button>
+            </div>
+          </div>
+
+          <!-- OAuth2 -->
+          <div class="auth-container">
+            <h4><code>OAuth2</code>&nbsp;(oauth2, authorizationCode)</h4>
+            <div class="wrapper"><p>Name: <code>Authorization</code></p></div>
+            <div class="wrapper"><label>client_id:</label><section class=""><input type="text" id="oauth-client-id" name="client_id"></section></div>
+            <div class="wrapper"><label>client_secret:</label><section class=""><input type="text" id="oauth-client-secret" name="client_secret"></section></div>
+            <div class="auth-btn-wrapper">
+              <button class="btn modal-btn auth authorize button" type="submit" onclick="authorizeScheme('OAuth2', event)">Authorize</button>
+              <button class="btn modal-btn auth btn-done button" type="button" onclick="closeAuthModal()">Close</button>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -297,40 +410,30 @@
       document.getElementById('authModal').classList.remove('show');
     }
 
-    function authorize() {
-      const bearer = document.getElementById('bearer-token').value;
-      const username = document.getElementById('basic-username').value;
-      const password = document.getElementById('basic-password').value;
-      const apiKey = document.getElementById('api-key').value;
-
-      let message = '<strong>✅ Authorization Successful!</strong><br><br>';
-
-      if (bearer) {
-        message += `<strong>Bearer Token:</strong> ${bearer.substring(0, 20)}...<br>`;
-      }
-      if (username && password) {
-        message += `<strong>Basic Auth:</strong> ${username} / ${'*'.repeat(password.length)}<br>`;
-      }
-      if (apiKey) {
-        message += `<strong>API Key:</strong> ${apiKey.substring(0, 20)}...<br>`;
-      }
+    function authorizeScheme(name, event) {
+      event.preventDefault();
+      console.log(`[Auth] Authorized: ${name}`);
 
       const status = document.getElementById('status');
-      status.innerHTML = message;
-      status.className = 'status success show';
+      const inputs = document.querySelectorAll('.modal-ux-content .auth-container input');
+      const parts = [];
 
-      closeAuthModal();
-
-      console.log('Authorization details:', {
-        bearer,
-        username,
-        password: password ? '***' : '',
-        apiKey
+      inputs.forEach(input => {
+        if (input.value) {
+          const val = input.type === 'password'
+            ? '*'.repeat(input.value.length)
+            : (input.value.length > 20 ? input.value.substring(0, 20) + '...' : input.value);
+          parts.push(`<strong>${input.id}:</strong> ${val}`);
+        }
       });
+
+      if (parts.length) {
+        status.innerHTML = `<strong>Authorization Result:</strong><br><br>` + parts.join('<br>');
+        status.className = 'status success show';
+      }
     }
 
-    // Log when page loads
-    console.log('Mock Swagger UI loaded - ready for extension testing');
+    console.log('Mock Swagger UI v5 loaded — ready for extension testing');
     console.log('URL:', window.location.href);
   </script>
 </body>

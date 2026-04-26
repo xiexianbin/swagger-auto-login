@@ -8,7 +8,7 @@ export default defineConfig({
   manifest: {
     name: 'Swagger Auto Login',
     description: 'Automatically inject authentication credentials into Swagger UI',
-    version: '1.0.0',
+    version: '1.0.1',
     permissions: ['storage', 'tabs', 'sidePanel'],
     host_permissions: ['<all_urls>'],
     side_panel: {
