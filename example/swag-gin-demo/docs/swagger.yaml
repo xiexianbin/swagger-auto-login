@@ -1,8 +1,11 @@
 basePath: /api/v1
+consumes:
+- application/json
+- application/json
 host: localhost:8080
 info:
   contact: {}
-  description: 这是一个展示如何使用 ApiKeyAuth 的示例项目。
+  description: 需要提供 Header 中的 Authorization 才能访问
   title: Gin Swagger Example API
   version: "1.0"
 paths:
@@ -45,6 +48,11 @@ paths:
       summary: 获取私密数据 (受保护)
       tags:
       - Secure
+produces:
+- application/json
+- application/json
+security:
+- ApiKeyAuth: []
 securityDefinitions:
   ApiKeyAuth:
     in: header

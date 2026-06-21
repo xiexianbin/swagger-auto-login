@@ -7,6 +7,9 @@ cd swag-gin-demo
 
 # 安装 swag 命令行工具（如果你还没安装的话）
 go install github.com/swaggo/swag/cmd/swag@latest
+
+# v2
+go install github.com/swaggo/swag/v2/cmd/swag@latest
 ```
 
 生成 Swagger 文档并运行
